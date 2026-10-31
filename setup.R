@@ -35,18 +35,30 @@ if (.Platform$OS.type == "unix" && Sys.info()["sysname"] == "Darwin") {
 }
 
 # Install packages one at a time so a failure in one package does not
-# abort the rest; report any failures at the end.
+# abort the rest; report any failures at the end. On macOS, install.packages
+# reports source-build failures as warnings, so warnings are treated as
+# failures too.
 failed <- character()
 for (pkg in pkgs) {
   if (requireNamespace(pkg, quietly = TRUE)) {
     cat("OK:", pkg, "\n")
   } else {
     cat("Installing", pkg, "...\n")
+    got_warning <- character()
     ok <- tryCatch(
-      {install.packages(pkg, repos = "https://cloud.r-project.org", quiet = TRUE);
-       TRUE},
+      withCallingHandlers(
+        {install.packages(pkg, repos = "https://cloud.r-project.org", quiet = TRUE);
+         TRUE},
+        warning = function(w) {
+          got_warning <<- c(got_warning, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        }
+      ),
       error = function(e) FALSE
     )
+    if (isTRUE(ok) && length(got_warning) > 0) {
+      ok <- FALSE
+    }
     if (isTRUE(ok)) {
       cat("OK:", pkg, "\n")
     } else {
