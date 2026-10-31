@@ -1,0 +1,17 @@
+# R
+.Rproj.user/
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# Generated data and output
+data/paddy.rds
+data/data_dictionary.rds
+output/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*~
