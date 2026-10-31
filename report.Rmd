@@ -154,30 +154,18 @@ ggsave(here("output", "fig_coefficients.png"), p_coef, width = 9, height = 6, dp
 p_coef
 ```
 
-### 4.2 Plot: model vs selected features
+### 4.2 Plot: model vs selected features (hexbin of actual yield)
 
 ```{r model-vs-features, fig.cap="Regression model vs the two selected features"}
-# Yield vs seed rate with regression line
-p_seed <- ggplot(paddy, aes(x = seedrate_kg, y = paddy_yield_kg)) +
-  geom_point(alpha = 0.25, colour = "steelblue", size = 0.8) +
-  geom_smooth(method = "lm", colour = "darkred", se = TRUE, linewidth = 0.8) +
-  labs(x = "Seed rate (Kg)", y = "Paddy yield (Kg)",
-       title = "Paddy yield vs seed rate (regression line)") +
-  theme_minimal(base_size = 8)
-
-# Yield vs hectares with regression line
-p_het <- ggplot(paddy, aes(x = hectares, y = paddy_yield_kg)) +
-  geom_point(alpha = 0.25, colour = "steelblue", size = 0.8) +
-  geom_smooth(method = "lm", colour = "darkred", se = TRUE, linewidth = 0.8) +
-  labs(x = "Block size (hectares)", y = "Paddy yield (Kg)",
-       title = "Paddy yield vs block size (regression line)") +
-  theme_minimal(base_size = 8)
-
-# Combine into a 2-panel plot
-p_both <- wrap_plots(p_seed, p_het) + plot_annotation(title = "Final regression model vs selected features")
-
-ggsave(here("output", "fig_model_vs_features.png"), p_both, width = 8, height = 10, dpi = 120)
-p_both
+# Hexbin scatter of the two features, colored by actual yield
+p_hex <- ggplot(paddy, aes(x = seedrate_kg, y = hectares)) +
+  geom_hex(bins = 40, colour = NA, alpha = 0.8) +
+  scale_fill_viridis_c(option = "C", name = "Yield (Kg)") +
+  labs(x = "Seed rate (Kg)", y = "Block size (hectares)",
+       title = "Hexbin of features colored by actual yield") +
+  theme_minimal(base_size = 9)
+ggsave(here("output", "fig_model_vs_features.png"), p_hex, width = 9, height = 7, dpi = 120)
+p_hex
 ```
 
 **Interpretation:**
