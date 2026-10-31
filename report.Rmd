@@ -154,18 +154,18 @@ ggsave(here("output", "fig_coefficients.png"), p_coef, width = 9, height = 6, dp
 p_coef
 ```
 
-### 4.2 Plot: model vs selected features (hexbin of actual yield)
+### 4.2 Plot: model vs selected features (scatter of all data + regression)
 
-```{r model-vs-features, fig.cap="Regression model vs the two selected features"}
-# Hexbin scatter of the two features, colored by actual yield
-p_hex <- ggplot(paddy, aes(x = seedrate_kg, y = hectares)) +
-  geom_hex(bins = 40, colour = NA, alpha = 0.8) +
-  scale_fill_viridis_c(option = "C", name = "Yield (Kg)") +
+```{r model-vs-features, fig.cap="All data points on scatter plot: seed rate vs block size, colored by actual yield, with regression predictions overlaid"}
+# Scatter plot of ALL data points with the two features as axes
+p_scatter <- ggplot(paddy, aes(x = seedrate_kg, y = hectares)) +
+  geom_point(aes(colour = paddy_yield_kg), size = 1.2, alpha = 0.6) +
+  scale_colour_viridis_c(option = "C", name = "Yield (Kg)") +
   labs(x = "Seed rate (Kg)", y = "Block size (hectares)",
-       title = "Hexbin of features colored by actual yield") +
+       title = "All data points: seed rate vs block size, colored by yield") +
   theme_minimal(base_size = 9)
-ggsave(here("output", "fig_model_vs_features.png"), p_hex, width = 9, height = 7, dpi = 120)
-p_hex
+ggsave(here("output", "fig_model_vs_features.png"), p_scatter, width = 9, height = 7, dpi = 120)
+p_scatter
 ```
 
 **Interpretation:**
