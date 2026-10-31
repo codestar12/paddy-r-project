@@ -1,28 +1,14 @@
-# setup.R — install R and the packages needed for the paddy project.
-# Run once after cloning:
-#   Rscript setup.R
-#
-# If R is missing, the script tries to install it:
-#   - Debian/Ubuntu: sudo apt-get install -y r-base
-#   - macOS (Homebrew): brew install r
+# setup.R — install the packages needed for the paddy project.
+# Run once after cloning:  Rscript setup.R
+# (If R is missing, `make setup` installs it first via Homebrew or apt-get.)
 
 pkgs <- c("tidyverse", "janitor", "corrplot", "patchwork", "here")
 
-# If R is missing, install it (Linux via apt, macOS via Homebrew):
-if (Sys.which("Rscript") == "") {
-  cat("R is not installed. Attempting to install R...\n")
-  if (.Platform$OS.type == "unix" && Sys.which("apt-get") != "") {
-    ok <- system("sudo apt-get update -qq && sudo apt-get install -y -qq r-base") == 0
-  } else if (.Platform$OS.type == "unix" && Sys.which("brew") != "") {
-    ok <- system("brew install r") == 0
-  } else {
-    ok <- FALSE
-  }
-  if (!ok || Sys.which("Rscript") == "") {
-    cat("\nR could not be installed automatically.\n")
-    cat("Install R >= 4.1 manually, then run:  Rscript setup.R\n")
-    quit(status = 1)
-  }
+# Require R >= 4.1:
+r_ver <- getRversion()
+if (r_ver < "4.1") {
+  cat("R >= 4.1 is required (found", r_ver, ")\n")
+  quit(status = 1)
 }
 
 new_pkgs <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]

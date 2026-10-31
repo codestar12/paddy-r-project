@@ -7,8 +7,7 @@ growth factors in the Cuddalore district of Tamil Nadu, India).
 ## Quick start
 
 ```bash
-# 1. install R (>= 4.1) and the packages listed in setup.R
-make setup
+# 1. make setup (installs R >= 4.1 if missing, then the R packages)
 
 # 2. download the dataset, clean names and save data/paddy.rds
 make data
