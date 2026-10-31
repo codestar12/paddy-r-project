@@ -50,7 +50,7 @@ viz:
 regression:
 	$(RSCRIPT) R/05_regression_analysis.R
 
-all: data explore viz regression
+all: setup data explore viz regression
 
 clean:
 	rm -rf output/*
