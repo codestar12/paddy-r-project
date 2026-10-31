@@ -107,13 +107,13 @@ dev.off()
 
 # ---------------------------------------------------------------- 6. Yield vs features
 cat("6/6 Yield vs features\n")
-target_corr <- cor(num_df, paddy$paddy_yield_kg, use = "pairwise.complete.obs")[, "paddy_yield_kg"]
+target_corr <- sapply(num_df, function(x) cor(x, paddy$paddy_yield_kg, use = "pairwise.complete.obs"))
 top_vars <- names(sort(abs(target_corr), decreasing = TRUE))[1:8]
 
 scatter_plots <- map_dfr(top_vars, function(v) {
-  tibble(x = num_df[[v]], xvar = v)
+  tibble(x = num_df[[v]], xvar = v, yield = paddy$paddy_yield_kg)
 }) %>%
-  ggplot(aes(x = x, y = paddy$paddy_yield_kg)) +
+  ggplot(aes(x = x, y = yield)) +
   geom_point(alpha = 0.25, colour = "steelblue", size = 0.8) +
   facet_wrap(~ xvar, scales = "free_x", ncol = 4) +
   labs(x = NULL, y = "Paddy yield (Kg)",
@@ -133,7 +133,9 @@ yield_cat <- map_dfr(names(cat_data), function(v) {
   geom_boxplot(show.legend = FALSE) +
   coord_flip() +
   labs(x = NULL, y = "Paddy yield (Kg)",
-       title = "Paddy yield by categorical features (median line)") +
+       title = "Paddy yield by categorical features") +
   theme_minimal(base_size = 8) +
   theme(axis.text.y = element_blank())
+ggsave(here("output", "05_yield_by_categorical.png"), yield_cat,
+       width = 14, height = 12, dpi = 120)
 cat("Done writing PNGs to output/\n")
