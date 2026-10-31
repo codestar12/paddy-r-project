@@ -154,18 +154,20 @@ ggsave(here("output", "fig_coefficients.png"), p_coef, width = 9, height = 6, dp
 p_coef
 ```
 
-### 4.2 Plot: model vs selected features (scatter of all data + regression)
+### 4.2 Plot: model predictions vs actual yield
 
-```{r model-vs-features, fig.cap="All data points on scatter plot: seed rate vs block size, colored by actual yield, with regression predictions overlaid"}
-# Scatter plot of ALL data points with the two features as axes
-p_scatter <- ggplot(paddy, aes(x = seedrate_kg, y = hectares)) +
-  geom_point(aes(colour = paddy_yield_kg), size = 1.2, alpha = 0.6) +
-  scale_colour_viridis_c(option = "C", name = "Yield (Kg)") +
-  labs(x = "Seed rate (Kg)", y = "Block size (hectares)",
-       title = "All data points: seed rate vs block size, colored by yield") +
+```{r predictions-vs-actual, fig.cap="Model predictions vs actual yield, colored by a non-obvious feature (trash_bundles)"}
+# Predicted vs actual yield, colored by trash_bundles (a non-obvious feature)
+p_pred_actual <- ggplot(tibble(actual = actual, pred = pred, trash = paddy$trash_bundles),
+                         aes(x = actual, y = pred, colour = trash)) +
+  geom_point(size = 1.5, alpha = 0.6) +
+  scale_colour_viridis_c(option = "C", name = "Trash bundles") +
+  geom_abline(slope = 1, intercept = 0, colour = "darkred", linetype = "dashed", linewidth = 0.8) +
+  labs(x = "Actual paddy yield (Kg)", y = "Predicted paddy yield (Kg)",
+       title = "Model predictions vs actual yield (colored by trash_bundles)") +
   theme_minimal(base_size = 9)
-ggsave(here("output", "fig_model_vs_features.png"), p_scatter, width = 9, height = 7, dpi = 120)
-p_scatter
+ggsave(here("output", "fig_predictions_vs_actual.png"), p_pred_actual, width = 9, height = 7, dpi = 120)
+p_pred_actual
 ```
 
 **Interpretation:**
