@@ -1,7 +1,7 @@
 # paddy-r-project
 
 A starter R project for the [UCI Paddy dataset](https://archive.ics.uci.edu/dataset/1186/paddy+dataset)
-(2,790 observations, 44 features + a `paddy_yield` target, from a study of rice
+(2,789 observations, 44 features + a `paddy_yield` target, from a study of rice
 growth factors in the Cuddalore district of Tamil Nadu, India).
 
 ## Quick start
@@ -16,7 +16,7 @@ make data
 # 3. textual summary -> prints structure, missingness and yield correlations
 make explore
 
-# 4. visualizations -> output/01..04 PNGs
+# 4. visualizations -> output/01–05 PNGs
 make viz
 
 # or everything at once
@@ -37,9 +37,9 @@ make all
 
 | Variable | Role | Type |
 |---|---|---|
-| hectares, agriblock, variety, soil_types, seedrate, lp_mainfield, nursery, nursery_area, lp_nurseryarea, dap_20days | feature | integer / categorical / continuous |
-| weed28d_thiobencarb … trash (31 weather/chemical/yield features) | feature | continuous |
-| paddy_yield | target | continuous (Kg) |
+| hectares, agriblock, variety, soil_types, seedrate_kg, lp_mainfield_tonnes, nursery, nursery_area_cents, lp_nurseryarea_tonnes, dap_20days | feature | integer / categorical / continuous |
+| weed28d_thiobencarb … trash_bundles (weather/chemical/yield features) | feature | continuous |
+| paddy_yield_kg | target | continuous (Kg) |
 
 See `data/data_dictionary.rds` for the full variable-by-variable table.
 
