@@ -18,6 +18,9 @@ make explore
 # 4. visualizations -> output/01–05 PNGs
 make viz
 
+# 5. analysis visualizations -> output/06–10 PNGs (yield vs rainfall, seed rate, variety, soil type, top features)
+make analysis
+
 # or everything at once
 make all
 ```
@@ -26,7 +29,7 @@ make all
 
 ```
 ├── data/                      # raw CSV (paddydataset.csv) + cleaned CSV and RDS
-├── R/                         # 01_load_data.R, 02_summary.R, 03_visualizations.R
+├── R/                         # 01_load_data.R, 02_summary.R, 03_visualizations.R, 04_analysis_visualizations.R
 ├── output/                    # generated plots and reports
 ├── setup.R                    # installs R + required packages
 └── Makefile                   # one-command workflow
@@ -49,11 +52,17 @@ See `data/data_dictionary.rds` for the full variable-by-variable table.
 3. `03_correlation_heatmap.png` — pairwise correlations between numeric features
 4. `04_yield_vs_numeric.png` — paddy yield against the 8 most correlated features
 5. `05_yield_by_categorical.png` — yield by categorical features (boxplots)
+6. `06_yield_vs_rainfall.png` — yield vs 30-day rainfall, with a linear trend
+7. `07_yield_vs_seedrate.png` — yield vs seed rate, with a linear trend
+8. `08_yield_by_variety.png` — yield by variety (boxplots)
+9. `09_yield_by_soil_type.png` — yield by soil type (boxplots)
+10. `10_top_features_by_correlation.png` — top 15 features by absolute correlation with yield
 
 ## Suggested next steps
 
-- Correlate numeric features with `paddy_yield` to find the strongest drivers
-  (rainfall, wind, and yield itself dominate the correlation matrix)
-- Try a regression model (e.g. `parsnip` + `workflowsets`) predicting `paddy_yield`
-- Look at variety × soil_types interactions — the dataset is an observational
-  field trial, so check for confounding before drawing causal conclusions
+- Load the dataset into a model — e.g. `parsnip` + `recipes` to predict `paddy_yield`
+  from the fertilizer and weather features, and check which variables matter most
+- The dataset is a synthetic field trial, so strong input–output correlations do not
+  imply causation; a regression model is the place to start before drawing conclusions
+- Try a glass-box model (e.g. `rpart` or `earth`) and compare against a linear model
+  to see which features a model actually uses

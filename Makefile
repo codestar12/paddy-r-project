@@ -3,12 +3,13 @@
 #   make setup     install dependencies (R + packages; installs R if missing)
 #   make data      download + clean the dataset (scripts 01)
 #   make explore   textual summary (script 02)
-#   make viz       generate visualizations (script 03)
-#   make all       data + explore + viz
+#   make viz       generate visualizations (scripts 03 + 04)
+#   make analysis  generate analysis visualizations (script 04)
+#   make all       data + explore + viz + analysis
 
 RSCRIPT ?= Rscript
 
-.PHONY: setup data explore viz all clean
+.PHONY: setup data explore viz analysis all clean
 
 # `make setup` also installs R when it is missing:
 #   macOS (Homebrew)  -> brew install r
@@ -46,7 +47,10 @@ explore:
 viz:
 	$(RSCRIPT) R/03_visualizations.R
 
-all: data explore viz
+analysis:
+	$(RSCRIPT) R/04_analysis_visualizations.R
+
+all: data explore viz analysis
 
 clean:
 	rm -rf output/*
