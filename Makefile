@@ -1,15 +1,15 @@
 # Makefile for the paddy R project
 # Usage:
-#   make setup     install dependencies (R + packages; installs R if missing)
-#   make data      download + clean the dataset (scripts 01)
-#   make explore   textual summary (script 02)
-#   make viz       generate visualizations (scripts 03 + 04)
-#   make analysis  generate analysis visualizations (script 04)
-#   make all       data + explore + viz + analysis
+#   make setup         install dependencies (R + packages; installs R if missing)
+#   make data          download + clean the dataset (scripts 01)
+#   make explore       textual summary (script 02)
+#   make viz           generate visualizations (scripts 03 + 04)
+#   make regression    feature selection, regression, ANOVA (script 05)
+#   make all           data + explore + viz + regression
 
 RSCRIPT ?= Rscript
 
-.PHONY: setup data explore viz analysis all clean
+.PHONY: setup data explore viz regression all clean
 
 # `make setup` also installs R when it is missing:
 #   macOS (Homebrew)  -> brew install r
@@ -47,10 +47,10 @@ explore:
 viz:
 	$(RSCRIPT) R/03_visualizations.R
 
-analysis:
-	$(RSCRIPT) R/04_analysis_visualizations.R
+regression:
+	$(RSCRIPT) R/05_regression_analysis.R
 
-all: data explore viz analysis
+all: data explore viz regression
 
 clean:
 	rm -rf output/*

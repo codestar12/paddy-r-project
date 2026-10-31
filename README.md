@@ -15,11 +15,11 @@ make data
 # 3. textual summary -> prints structure, missingness and yield correlations
 make explore
 
-# 4. visualizations -> output/01–05 PNGs
+# 4. visualizations -> output/01–10 PNGs
 make viz
 
-# 5. analysis visualizations -> output/06–10 PNGs (yield vs rainfall, seed rate, variety, soil type, top features)
-make analysis
+# 5. regression analysis (feature selection, regression, ANOVA) -> output/11–16 PNGs + summary
+make regression
 
 # or everything at once
 make all
@@ -29,8 +29,9 @@ make all
 
 ```
 ├── data/                      # raw CSV (paddydataset.csv) + cleaned CSV and RDS
-├── R/                         # 01_load_data.R, 02_summary.R, 03_visualizations.R, 04_analysis_visualizations.R
-├── output/                    # generated plots and reports
+├── R/                         # 01_load_data.R, 02_summary.R, 03_visualizations.R,
+│                              #   04_analysis_visualizations.R, 05_regression_analysis.R
+├── output/                    # generated plots, reports, and summaries
 ├── setup.R                    # installs R + required packages
 └── Makefile                   # one-command workflow
 ```
@@ -57,6 +58,12 @@ See `data/data_dictionary.rds` for the full variable-by-variable table.
 8. `08_yield_by_variety.png` — yield by variety (boxplots)
 9. `09_yield_by_soil_type.png` — yield by soil type (boxplots)
 10. `10_top_features_by_correlation.png` — top 15 features by absolute correlation with yield
+11. `11_feature_importance.png` — regression coefficients (final model)
+12. `12_predicted_vs_actual.png` — predicted vs actual yield
+13. `13_residuals_vs_fitted.png` — residuals vs fitted values
+14. `14_residual_qq.png` — normal Q-Q plot of residuals
+15. `15_anova_f_statistics.png` — ANOVA F statistics per categorical feature
+16. `16_stepwise_path.png` — forward selection path (R² as features are added)
 
 ## Suggested next steps
 
