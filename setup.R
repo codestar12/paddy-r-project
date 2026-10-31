@@ -11,14 +11,23 @@ if (r_ver < "4.1") {
   quit(status = 1)
 }
 
-# On macOS, compiling packages needs the Xcode Command Line Tools:
-if (.Platform$OS.type == "unix" && Sys.info()["sysname"] == "Darwin" &&
-    nzchar(Sys.which("xcode-select")) && !file.exists("/Library/Developer/CommandLineTools")) {
-  cat("Xcode Command Line Tools are missing - R packages cannot be compiled.\n")
-  cat("Install them by running (in a terminal):\n")
-  cat("    xcode-select --install\n")
-  cat("Accept the license dialog, then re-run:  make setup\n")
-  quit(status = 1)
+# On macOS, compiling packages needs a working Xcode Command Line Tools
+# toolchain. Check that xcrun can actually find a working compiler:
+if (.Platform$OS.type == "unix" && Sys.info()["sysname"] == "Darwin") {
+  clang_ok <- tryCatch({
+    xcrun <- Sys.which("xcrun")
+    nzchar(xcrun) && system2(xcrun, c("-p", "clang"), stdout = FALSE, stderr = FALSE) == 0
+  }, error = function(e) FALSE)
+  if (!clang_ok) {
+    cat("Xcode Command Line Tools do not appear to be installed or are outdated.\n")
+    cat("Install or update them by running (in a terminal):\n")
+    cat("    xcode-select --install\n")
+    cat("If that reports they are already installed, also run:\n")
+    cat("    softwareupdate --list\n")
+    cat("and install any 'Command Line Tools' update it lists.\n")
+    cat("Then re-run:  make setup\n")
+    quit(status = 1)
+  }
 }
 
 # Install packages one at a time so a failure in one package does not
