@@ -2,7 +2,7 @@
 # Run once after cloning:  Rscript setup.R
 # (If R is missing, `make setup` installs it first via Homebrew or apt-get.)
 
-pkgs <- c("tidyverse", "janitor", "corrplot", "patchwork", "here", "car", "broom")
+pkgs <- c("tidyverse", "janitor", "corrplot", "patchwork", "here", "broom")
 
 r_ver <- getRversion()
 if (r_ver < "4.1") {

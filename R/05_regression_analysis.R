@@ -7,7 +7,6 @@ library(here)
 library(janitor)
 library(tidyverse)
 library(broom)
-library(car)
 library(MASS)
 
 paddy <- readRDS(here("data", "paddy.rds"))
@@ -15,13 +14,13 @@ dir.create(here("output"), showWarnings = FALSE, recursive = TRUE)
 dic <- readRDS(here("data", "data_dictionary.rds"))
 numeric_vars <- dic$variable[dic$type %in% c("integer", "continuous")]
 categorical_vars <- dic$variable[dic$type == "categorical"]
+cat_data <- dplyr::select(paddy, dplyr::all_of(categorical_vars))
 
 # ---------------------------------------------------------------- 1. Feature selection
 cat("1/6 Feature selection\n")
 
 # Correlation-based ranking: top features by |correlation| with yield
 num_df <- dplyr::select(paddy, dplyr::all_of(numeric_vars))
-cat_data <- dplyr::select(paddy, dplyr::all_of(categorical_vars))
 target_corr <- sapply(num_df, function(x) cor(x, paddy$paddy_yield_kg, use = "pairwise.complete.obs"))
 feat_corr <- tibble(feature = names(target_corr), corr = target_corr) %>%
   mutate(abs_corr = abs(corr)) %>%
@@ -46,7 +45,6 @@ cat("\n2/6 Regression\n")
 final_model <- lm(as.formula(paste("paddy_yield_kg ~", paste(selected_features, collapse = " + "))), data = paddy)
 model_sum <- glance(final_model)
 coefs <- tidy(final_model)
-anova_tab <- car::Anova(final_model, type = 2)
 pred <- predict(final_model)
 actual <- paddy$paddy_yield_kg
 resid <- actual - pred
@@ -62,11 +60,11 @@ cat("  Predictors:", paste(selected_features, collapse = ", "), "\n")
 cat("\n3/6 ANOVA (one-way, each categorical feature vs yield)\n")
 anova_cat <- map_dfr(names(cat_data), function(v) {
   m <- lm(as.formula(paste("paddy_yield_kg ~", v)), data = paddy)
-  a <- car::Anova(m, type = 2) %>% slice(1)
-  tibble(feature = v, Df = a$Df, `Sum Sq` = a$`Sum Sq`, `Mean Sq` = a$`Mean Sq`,
-         `F value` = a$`F value`, `Pr(>F)` = a$`Pr(>F)`)
+  a <- anova(m)
+  tibble(feature = v, Df = a$Df[1], Fvalue = a$`F value`[1], SumSq = a$`Sum Sq`[1], MeanSq = a$`Mean Sq`[1],
+         PrF = a$`Pr(>F)`[1])
 })
-cat("Feature | Df | Sum Sq | Mean Sq | F value | Pr(>F)\n")
+cat("Feature | Df | Fvalue | Sum Sq | Mean Sq | Pr(>F)\n")
 cat("--------|----|--------|---------|---------|---------\n")
 print(anova_cat, n = Inf)
 
@@ -136,11 +134,12 @@ ggsave(here("output", "14_residual_qq.png"), p_qq, width = 8, height = 6, dpi = 
 # --- 4e. ANOVA results: F-statistics bar chart
 cat("4e. ANOVA results\n")
 p_anova <- anova_cat %>%
-  mutate(feature = fct_reorder(feature, `F value`)) %>%
-  ggplot(aes(x = feature, y = `F value`, fill = `Pr(>F)`)) +
+  arrange(order(Fvalue, decreasing = TRUE)) %>%
+  mutate(feature = factor(feature, levels = rev(unique(feature)))) %>%
+  ggplot(aes(x = feature, y = Fvalue, fill = PrF)) +
   geom_col() +
   scale_fill_gradientn(colours = c("firebrick", "orange", "steelblue"),
-                        labels = scales::label_pvalue(), 
+                        labels = scales::label_pvalue(),
                         name = "Pr(>F)") +
   coord_flip() +
   labs(x = NULL, y = "F statistic",
@@ -151,7 +150,6 @@ ggsave(here("output", "15_anova_f_statistics.png"), p_anova, width = 9, height =
 
 # --- 4f. Stepwise path: number of features vs R²
 cat("4f. Stepwise path\n")
-# Compute R² at each step of the forward selection
 path_r2 <- numeric(length(selected_features))
 for (k in seq_along(selected_features)) {
   formula_k <- paste("paddy_yield_kg ~", paste(selected_features[1:k], collapse = " + "))
@@ -169,9 +167,9 @@ ggsave(here("output", "16_stepwise_path.png"), p_path, width = 9, height = 6, dp
 
 # --- 4g. ANOVA summary table
 cat("4g. ANOVA summary\n")
-cat("\nFeature | F value | Pr(>F)\n")
-cat("--------|---------|--------\n")
-print(anova_cat[, c("feature", "F value", "Pr(>F)")], n = Inf)
+cat("\nFeature | Df | Fvalue | Sum Sq | Mean Sq | Pr(>F)\n")
+cat("--------|----|--------|---------|---------|---------\n")
+print(anova_cat, n = Inf)
 
 cat("\nDone. Results written to output/ and analysis_summary.txt\n")
 
@@ -196,12 +194,16 @@ summary_lines <- c(
   paste("  full (all numeric):", round(models_r2$r2[4], 4)),
   "",
   "=== ANOVA (categorical features vs yield) ===",
-  paste("Feature | F value | Pr(>F)"),
-  paste("--------|---------|--------")
+  paste("Feature | Df | Fvalue | Sum Sq | Mean Sq | Pr(>F)"),
+  paste("--------|----|--------|---------|---------|--------")
 )
 for (i in seq_len(nrow(anova_cat))) {
   summary_lines <- c(summary_lines,
-    paste(anova_cat$feature[i], "|", round(anova_cat$`F value`[i], 6), "|", signif(anova_cat$`Pr(>F)`[i], 3))
+    paste(anova_cat$feature[i], "|", anova_cat$Df[i], "|",
+          round(anova_cat$Fvalue[i], 6), "|",
+          round(anova_cat$SumSq[i]), "|",
+          round(anova_cat$MeanSq[i]), "|",
+          signif(anova_cat$PrF[i], 3))
   )
 }
 writeLines(summary_lines, here("output", "analysis_summary.txt"))
